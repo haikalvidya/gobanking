@@ -1,0 +1,6 @@
+.env
+postgresdata/
+redisdata/
+postgresdata-*
+redisdata-*
+jetstream-data*
