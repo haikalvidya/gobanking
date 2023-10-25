@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  mysql_user:
+    image: mysql:latest
+    container_name: mysql_user
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${USER_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${USER_MYSQL_DATABASE}
+    ports:
+      - ${USER_MYSQL_PORT}:3306
+    volumes:
+      - ./mysqldata:/var/lib/mysql
+    networks:
+      - user-backend
+
+  user_service:
+    build:
+      context: .
+      dockerfile: ./docker/user.Dockerfile
+    container_name: user_service
+    depends_on:
+      - mysql_user
+      - redis_user
+    command: ./app --config=config/config.yml
+    restart: always
+    volumes:
+      - ./cmd/user/config/config.yml:/config/config.yml # for local
+      # - ./config-user.yml:/app/config.yml # for production if no folder project, create config.yml in the same folder with docker compsoe and attach it
+    ports:
+      - ${USER_API_PORT}:8000
+    networks:
+      - user-backend
+      - nats-network
+  
+  redis_user:
+    image: redis:latest
+    container_name: redis_user
+    restart: always
+    environment:
+      - REDIS_PASSWORD=${USER_REDIS_PASSWORD}
+    ports:
+      - ${USER_REDIS_PORT}:6379
+    volumes:
+      - ./redisdata:/data
+    networks:
+      - user-backend
+
+
+networks:
+  user-backend:
+  nats-network:
+    external: true
+    name: ${NATS_NETWORK_NAME}

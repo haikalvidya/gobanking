@@ -1,6 +1,6 @@
 .env
-postgresdata/
+mysqldata/
 redisdata/
-postgresdata-*
+mysqldata-*
 redisdata-*
 jetstream-data*

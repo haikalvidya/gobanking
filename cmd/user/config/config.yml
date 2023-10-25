@@ -1,0 +1,32 @@
+serviceName: user-service
+http:
+  port: :8000
+  development: true
+  httpClientDebug: true
+  debugErrorsResponse: true
+logger:
+  level: debug
+  devMode: false
+  encoder: console
+timeouts:
+  mysqlInitMilliseconds: 1500
+  mysqlInitRetryCount: 3
+  redisInitMilliseconds: 1500
+  redisInitRetryCount: 3
+mysql:
+  host: mysql_user
+  port: 3306 # if run in the same docker compose use  3306, but if run in difference docker compose use 3308 or follow .env file
+  user: root
+  password: adminpass123
+  dbName: users
+  sslMode: false
+redis:
+  host: redis_user
+  port: 6379
+  password: adminpass123
+  db: 0
+  poolSize: 10
+  minIdleConns: 5
+  poolTimeout: 300
+nats:
+  url: nats://passIsSecret@nats:4222
