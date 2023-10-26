@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"gobanking/internal/user/models"
 	"gobanking/pkg/mysql"
 	"time"
 
@@ -35,5 +36,7 @@ func (a *app) connectMysql(ctx context.Context) error {
 }
 
 func (a *app) migrateMysql(ctx context.Context) error {
-	return a.mysqlConn.AutoMigrate()
+	return a.mysqlConn.AutoMigrate(
+		&models.User{},
+	)
 }

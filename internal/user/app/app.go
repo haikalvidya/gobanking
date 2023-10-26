@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"gobanking/internal/user/config"
+	http_handler "gobanking/internal/user/handler/http"
+	"gobanking/internal/user/repository"
+	"gobanking/internal/user/usecase"
 	"gobanking/pkg/logger"
 	"gobanking/pkg/middlewares"
 	natsPkg "gobanking/pkg/nats"
@@ -51,13 +54,6 @@ func (a *app) Run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	a.middlewareManager = middlewares.NewMiddlewareManager(a.log,
-		&middlewares.MiddlewareConfig{
-			HttpClientDebug:     a.cfg.Http.HttpClientDebug,
-			DebugErrorsResponse: a.cfg.Http.DebugErrorsResponse,
-		},
-	)
-
 	// connect mysql
 	if err := a.connectMysql(ctx); err != nil {
 		return err
@@ -83,6 +79,19 @@ func (a *app) Run() error {
 	a.natsClient = natsClient
 	defer a.natsClient.Drain()
 	defer a.natsClient.Close()
+
+	a.middlewareManager = middlewares.NewMiddlewareManager(a.log,
+		&middlewares.MiddlewareConfig{
+			HttpClientDebug:     a.cfg.Http.HttpClientDebug,
+			DebugErrorsResponse: a.cfg.Http.DebugErrorsResponse,
+		},
+		a.redisConn,
+	)
+
+	// setup app
+	appRepo := repository.NewRepository(a.mysqlConn)
+	appUsecase := usecase.NewUsecase(appRepo, a.redisConn, a.log, a.cfg)
+	http_handler.NewHandler(appUsecase, a.log, a.cfg, a.middlewareManager, a.validator, a.echo.Group(""), a.redisConn)
 
 	go func() {
 		if err := a.runHttpServer(); err != nil {

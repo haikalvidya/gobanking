@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"gobanking/pkg/serializer"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -32,4 +33,27 @@ func NewRedisConn(ctx *context.Context, cfg *Config) (*redis.Client, error) {
 	}
 
 	return redisClient, nil
+}
+
+func GetDataFromRedis[T any](ctx context.Context, redisClient *redis.Client, key string, result *T) (*T, error) {
+	redisResp := redisClient.Get(ctx, key)
+	if redisResp.Err() != nil || redisResp.Err() == redis.Nil {
+		return nil, redisResp.Err()
+	}
+
+	if err := serializer.Unmarshal([]byte(redisResp.Val()), &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+const (
+	RefreshToken = "refresh_token"
+	Token        = "token"
+)
+
+func GetKeyOfTokenUserFromRedis(token string, theType string) string {
+	// 7 last char of token
+	return theType + ":user:" + token[len(token)-7:]
 }

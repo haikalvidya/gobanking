@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/redis/go-redis/v9"
 )
 
 type MiddlewareManager interface {
@@ -15,16 +16,16 @@ type MiddlewareManager interface {
 type middlewareManager struct {
 	log    logger.Logger
 	config *MiddlewareConfig
+	redis  *redis.Client
 }
 
 type MiddlewareConfig struct {
 	HttpClientDebug     bool
 	DebugErrorsResponse bool
-	UserApiUrl          string
 }
 
-func NewMiddlewareManager(log logger.Logger, cfg *MiddlewareConfig) *middlewareManager {
-	mwManager := &middlewareManager{log: log, config: cfg}
+func NewMiddlewareManager(log logger.Logger, cfg *MiddlewareConfig, redis *redis.Client) *middlewareManager {
+	mwManager := &middlewareManager{log: log, config: cfg, redis: redis}
 	return mwManager
 }
 

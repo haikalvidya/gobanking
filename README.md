@@ -7,6 +7,6 @@ Purpose of the project is for my template project that implement clean architect
 The is built with the following technologies:
 
 - Programming Language: [Go](https://golang.org/)
-- Communication: [NATS](https://nats.io/), [NATS Streaming](https://docs.nats.io/nats-concepts/jetstream/streams)
+- Communication: [NATS](https://nats.io/), [REST](https://en.wikipedia.org/wiki/Representational_state_transfer)
 - Database: [MySQL](https://www.mysql.com/) , [Redis](https://redis.io/)
 - Deployment: [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/)

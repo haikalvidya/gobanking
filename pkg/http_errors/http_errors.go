@@ -1,4 +1,4 @@
-package httpErrors
+package http_errors
 
 import (
 	"context"
@@ -23,15 +23,17 @@ const (
 	ErrInvalidPassword     = "Invalid password"
 	ErrInvalidField        = "Invalid field"
 	ErrInternalServerError = "Internal Server Error"
+	ErrWrongCredentials    = "Wrong Credentials"
+	ErrForbidden           = "Forbidden"
 )
 
 var (
-	BadRequest          = errors.New("Bad request")
-	WrongCredentials    = errors.New("Wrong Credentials")
-	NotFound            = errors.New("Not Found")
-	Unauthorized        = errors.New("Unauthorized")
-	Forbidden           = errors.New("Forbidden")
-	InternalServerError = errors.New("Internal Server Error")
+	BadRequest          = errors.New(ErrBadRequest)
+	WrongCredentials    = errors.New(ErrWrongCredentials)
+	NotFound            = errors.New(ErrNotFound)
+	Unauthorized        = errors.New(ErrUnauthorized)
+	Forbidden           = errors.New(ErrForbidden)
+	InternalServerError = errors.New(ErrInternalServerError)
 )
 
 // RestErr Rest error interface
@@ -192,16 +194,16 @@ func NewInternalServerError(ctx echo.Context, causes interface{}, debug bool) er
 // ParseErrors Parser of error string messages returns RestError
 func ParseErrors(err error, debug bool) RestErr {
 	switch {
-	case errors.Is(err, sql.ErrNoRows):
+	case errors.Is(err, BadRequest) || strings.Contains(err.Error(), ErrBadRequest):
+		return NewRestError(http.StatusBadRequest, ErrBadRequest, err.Error(), debug)
+	case errors.Is(err, sql.ErrNoRows) || strings.Contains(err.Error(), ErrNotFound):
 		return NewRestError(http.StatusNotFound, ErrNotFound, err.Error(), debug)
 	case errors.Is(err, context.DeadlineExceeded):
 		return NewRestError(http.StatusRequestTimeout, ErrRequestTimeout, err.Error(), debug)
-	case errors.Is(err, Unauthorized):
+	case errors.Is(err, Unauthorized) || strings.Contains(err.Error(), ErrUnauthorized):
 		return NewRestError(http.StatusUnauthorized, ErrUnauthorized, err.Error(), debug)
-	case errors.Is(err, WrongCredentials):
+	case errors.Is(err, WrongCredentials) || strings.Contains(err.Error(), ErrWrongCredentials):
 		return NewRestError(http.StatusUnauthorized, ErrUnauthorized, err.Error(), debug)
-	case strings.Contains(strings.ToLower(err.Error()), "sqlstate"):
-		return parseSqlErrors(err, debug)
 	case strings.Contains(strings.ToLower(err.Error()), "field validation"):
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
 			return NewRestError(http.StatusBadRequest, ErrBadRequest, validationErrors.Error(), debug)
@@ -217,10 +219,6 @@ func ParseErrors(err error, debug bool) RestErr {
 		}
 		return NewRestError(http.StatusInternalServerError, ErrInternalServerError, errors.Cause(err).Error(), debug)
 	}
-}
-
-func parseSqlErrors(err error, debug bool) RestErr {
-	return NewRestError(http.StatusBadRequest, ErrBadRequest, err, debug)
 }
 
 func parseValidatorError(err error, debug bool) RestErr {

@@ -16,7 +16,7 @@ services:
     restart: always
     volumes:
       - ./nats-server.conf:/nats-server.conf
-      - ./jetstream-data:/data
+      # - ./jetstream-data:/data
 
 networks:
   nats-network:

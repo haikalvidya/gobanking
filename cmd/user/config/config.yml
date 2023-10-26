@@ -30,3 +30,8 @@ redis:
   poolTimeout: 300
 nats:
   url: nats://passIsSecret@nats:4222
+jwt:
+  secret: secretIsSecretAndMustBeLong
+  expire: 3600
+  issuer: gobanking
+  refreshExpire: 7200

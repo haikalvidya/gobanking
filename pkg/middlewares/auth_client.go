@@ -1,33 +1,13 @@
 package middlewares
 
 import (
-	"time"
-
 	"github.com/labstack/echo/v4"
 )
 
-type UserApiResponse struct {
-	Data struct {
-		ID        int         `json:"id"`
-		Email     string      `json:"email"`
-		Username  string      `json:"username"`
-		Name      string      `json:"name"`
-		Phone     string      `json:"phone"`
-		PhotoURL  interface{} `json:"photoUrl"`
-		BranchID  int         `json:"branch_id"`
-		RoleID    int         `json:"role_id"`
-		IsDeleted int         `json:"is_deleted"`
-		CreatedAt time.Time   `json:"created_at"`
-		UpdatedAt interface{} `json:"updated_at"`
-		DeletedAt interface{} `json:"deleted_at"`
-	} `json:"data"`
-	Message string `json:"message"`
-	Success bool   `json:"success"`
-}
-
-func (mw *middlewareManager) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+// this middleware is for the service that will call user service
+func (mw *middlewareManager) AuthMiddlewareClient(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		// get jwt token from header
+		// // get jwt token from header
 		// token := ctx.Request().Header.Get("Authorization")
 
 		// // call user api to validate token

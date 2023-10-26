@@ -28,6 +28,7 @@ type Config struct {
 	Mysql       *mysql.Config    `mapstructure:"mysql"`
 	Redis       *redis.Config    `mapstructure:"redis"`
 	Nats        *nats.NatsConfig `mapstructure:"nats"`
+	JWT         JwtConfig        `mapstructure:"jwt"`
 }
 
 type Timeouts struct {
@@ -42,6 +43,13 @@ type Http struct {
 	Development         bool   `mapstructure:"development"`
 	HttpClientDebug     bool   `mapstructure:"httpClientDebug"`
 	DebugErrorsResponse bool   `mapstructure:"debugErrorsResponse"`
+}
+
+type JwtConfig struct {
+	Secret        string `mapstructure:"secret" validate:"required"`
+	Issuer        string `mapstructure:"issuer" validate:"required"`
+	Expire        int64  `mapstructure:"expire" validate:"required"`
+	RefreshExpire int64  `mapstructure:"refreshExpire" validate:"required"`
 }
 
 func InitConfig() (*Config, error) {
