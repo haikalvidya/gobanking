@@ -10,3 +10,9 @@ The is built with the following technologies:
 - Communication: [NATS](https://nats.io/), [REST](https://en.wikipedia.org/wiki/Representational_state_transfer)
 - Database: [MySQL](https://www.mysql.com/) , [Redis](https://redis.io/)
 - Deployment: [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/)
+
+## How to run
+
+```bash
+make run-docker-all
+```
