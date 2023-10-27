@@ -5,18 +5,21 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 )
 
 type MiddlewareManager interface {
 	RequestLoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 	AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+	AuthMiddlewareClient(next echo.HandlerFunc) echo.HandlerFunc
 }
 
 type middlewareManager struct {
-	log    logger.Logger
-	config *MiddlewareConfig
-	redis  *redis.Client
+	log      logger.Logger
+	config   *MiddlewareConfig
+	redis    *redis.Client
+	natsConn *nats.Conn
 }
 
 type MiddlewareConfig struct {
@@ -24,8 +27,8 @@ type MiddlewareConfig struct {
 	DebugErrorsResponse bool
 }
 
-func NewMiddlewareManager(log logger.Logger, cfg *MiddlewareConfig, redis *redis.Client) *middlewareManager {
-	mwManager := &middlewareManager{log: log, config: cfg, redis: redis}
+func NewMiddlewareManager(log logger.Logger, cfg *MiddlewareConfig, redis *redis.Client, natsConn *nats.Conn) *middlewareManager {
+	mwManager := &middlewareManager{log: log, config: cfg, redis: redis, natsConn: natsConn}
 	return mwManager
 }
 

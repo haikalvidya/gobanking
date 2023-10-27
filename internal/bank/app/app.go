@@ -3,11 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"gobanking/internal/user/config"
-	http_handler "gobanking/internal/user/handler/http"
-	nats_handler "gobanking/internal/user/handler/nats"
-	"gobanking/internal/user/repository"
-	"gobanking/internal/user/usecase"
+	"gobanking/internal/bank/config"
 	"gobanking/pkg/logger"
 	"gobanking/pkg/middlewares"
 	natsPkg "gobanking/pkg/nats"
@@ -91,10 +87,6 @@ func (a *app) Run() error {
 	)
 
 	// setup app
-	appRepo := repository.NewRepository(a.mysqlConn)
-	appUsecase := usecase.NewUsecase(appRepo, a.redisConn, a.log, a.cfg)
-	http_handler.NewHandler(appUsecase, a.log, a.cfg, a.middlewareManager, a.validator, a.echo.Group(""), a.redisConn)
-	nats_handler.NewNatsHandler(appUsecase, a.log, a.natsClient)
 
 	go func() {
 		if err := a.runHttpServer(); err != nil {
