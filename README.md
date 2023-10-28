@@ -16,3 +16,24 @@ The is built with the following technologies:
 ```bash
 make run-docker-all
 ```
+
+## Endpoint list
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| POST | /auth/signup | Create new user |
+| POST | /auth/signin | Login to user |
+| POST | /auth/refresh | Refresh access token |
+| POST | /auth/signout | Logout from user |
+| GET | /user/me | Get current user |
+| GET | /user/:id | Get user by id |
+| PUT | /user/:id | Update user by id |
+| DELETE | /:id | Delete user by id |
+| POST | /account | Create new account |
+| GET | /account/:account_number | Get account by account number |
+| GET | /account/user/:user_id | Get all account by user id |
+| GET | /account/me | Get all account by current user |
+| PUT | /account/:account_number | Update account by account number |
+| DELETE | /account/:account_number | Delete account by account number |
+| GET | /currency | Get all currency |
+| GET | /currency/:id | Get currency by id |

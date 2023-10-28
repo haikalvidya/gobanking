@@ -17,7 +17,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/nats-io/nats.go"
-	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -32,7 +31,6 @@ type app struct {
 	middlewareManager middlewares.MiddlewareManager
 	validator         *utils.CustomValidator
 	mysqlConn         *gorm.DB
-	redisConn         *redis.Client
 	echo              *echo.Echo
 	natsClient        *nats.Conn
 }
@@ -63,11 +61,6 @@ func (a *app) Run() error {
 		return err
 	}
 
-	// connect redis
-	if err := a.connectRedis(ctx); err != nil {
-		return err
-	}
-
 	// setup nats
 	natsClient, err := natsPkg.NewNatsConnect(a.cfg.Nats, a.log)
 	if err != nil {
@@ -82,7 +75,7 @@ func (a *app) Run() error {
 			HttpClientDebug:     a.cfg.Http.HttpClientDebug,
 			DebugErrorsResponse: a.cfg.Http.DebugErrorsResponse,
 		},
-		a.redisConn,
+		nil,
 		a.natsClient,
 	)
 

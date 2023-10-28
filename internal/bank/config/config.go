@@ -6,7 +6,6 @@ import (
 	"gobanking/pkg/logger"
 	"gobanking/pkg/mysql"
 	"gobanking/pkg/nats"
-	"gobanking/pkg/redis"
 	"os"
 
 	"github.com/pkg/errors"
@@ -25,15 +24,12 @@ type Config struct {
 	Timeouts    Timeouts         `mapstructure:"timeouts" validate:"required"`
 	Http        Http             `mapstructure:"http"`
 	Mysql       *mysql.Config    `mapstructure:"mysql"`
-	Redis       *redis.Config    `mapstructure:"redis"`
 	Nats        *nats.NatsConfig `mapstructure:"nats"`
 }
 
 type Timeouts struct {
 	MysqlInitMilliseconds int  `mapstructure:"mysqlInitMilliseconds" validate:"required"`
 	MysqlInitRetryCount   uint `mapstructure:"mysqlInitRetryCount" validate:"required"`
-	RedisInitMilliseconds int  `mapstructure:"redisInitMilliseconds" validate:"required"`
-	RedisInitRetryCount   uint `mapstructure:"redisInitRetryCount" validate:"required"`
 }
 
 type Http struct {

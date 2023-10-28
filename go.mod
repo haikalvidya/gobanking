@@ -11,6 +11,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/nats-io/nats.go v1.31.0
+	github.com/oklog/ulid/v2 v2.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/spf13/viper v1.17.0
