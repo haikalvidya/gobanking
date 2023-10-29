@@ -10,8 +10,8 @@ import (
 )
 
 type Account struct {
-	ID            uuid.UUID      `json:"id" gorm:"primary_key"`
-	AccountNumber ulid.ULID      `json:"account_number" gorm:"not null"`
+	// account number is ulid but the type is uuid.UUID because gorm doesn't support ulid
+	AccountNumber string         `json:"account_number" gorm:"type:varchar(36);not null;primary_key;"`
 	UserId        uuid.UUID      `json:"user_id" gorm:"not null"`
 	Name          string         `json:"name" gorm:"not null"`
 	Balance       int64          `json:"balance" gorm:"not null"`
@@ -22,8 +22,7 @@ type Account struct {
 }
 
 func (a *Account) BeforeCreate(tx *gorm.DB) error {
-	a.ID = uuid.New()
 	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
-	a.AccountNumber = ulid.MustNew(ulid.Timestamp(time.Now()), ulid.Monotonic(entropy, 0))
+	a.AccountNumber = ulid.MustNew(ulid.Timestamp(time.Now()), ulid.Monotonic(entropy, 0)).String()
 	return nil
 }

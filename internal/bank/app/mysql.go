@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"gobanking/internal/bank/models"
 	"gobanking/pkg/mysql"
 	"time"
 
@@ -35,5 +36,49 @@ func (a *app) connectMysql(ctx context.Context) error {
 }
 
 func (a *app) migrateMysql(ctx context.Context) error {
-	return a.mysqlConn.AutoMigrate()
+	return a.mysqlConn.AutoMigrate(
+		&models.Account{},
+		&models.Transaction{},
+		&models.BalanceLedger{},
+		&models.Currency{},
+	)
+}
+
+// seeding currencies
+func (a *app) seedCurrencies(ctx context.Context) error {
+	var currencies = []models.Currency{
+		{
+			Code: "USD",
+			Name: "US Dollar",
+		},
+		{
+			Code: "EUR",
+			Name: "Euro",
+		},
+		{
+			Code: "GBP",
+			Name: "British Pound",
+		},
+		{
+			Code: "JPY",
+			Name: "Japanese Yen",
+		},
+		{
+			Code: "RUB",
+			Name: "Russian Ruble",
+		},
+		{
+			Code: "IDR",
+			Name: "Indonesian Rupiah",
+		},
+	}
+
+	for _, currency := range currencies {
+		// create if name not exist
+		if err := a.mysqlConn.FirstOrCreate(&currency, models.Currency{Name: currency.Name}).Error; err != nil {
+			return errors.Wrap(err, "mysql.FirstOrCreate")
+		}
+	}
+
+	return nil
 }

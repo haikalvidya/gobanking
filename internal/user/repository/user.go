@@ -3,11 +3,13 @@ package repository
 import (
 	"context"
 	"gobanking/internal/user/models"
+
+	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	// Create creates a new user
-	Create(ctx context.Context, user *models.User) error
+	CreateTX(ctx context.Context, tx *gorm.DB, user *models.User) error
 	// GetByEmail returns a user by email
 	GetByEmail(ctx context.Context, email string) (*models.User, error)
 	// GetByUsername returns a user by username
@@ -17,15 +19,15 @@ type UserRepository interface {
 	// GetByID returns a user by id
 	GetByID(ctx context.Context, id string) (*models.User, error)
 	// Update updates a user
-	Update(ctx context.Context, user *models.User) error
+	UpdateTX(ctx context.Context, tx *gorm.DB, user *models.User) error
 	// Delete deletes a user
 	Delete(ctx context.Context, id string) error
 }
 
 type userRepository repository
 
-func (u *userRepository) Create(ctx context.Context, user *models.User) error {
-	return u.DB.WithContext(ctx).Create(user).Error
+func (u *userRepository) CreateTX(ctx context.Context, tx *gorm.DB, user *models.User) error {
+	return tx.WithContext(ctx).Create(user).Error
 }
 
 func (u *userRepository) IsUserExist(ctx context.Context, email, username string) (bool, error) {
@@ -55,8 +57,8 @@ func (u *userRepository) GetByID(ctx context.Context, id string) (*models.User, 
 	return user, err
 }
 
-func (u *userRepository) Update(ctx context.Context, user *models.User) error {
-	return u.DB.WithContext(ctx).Save(user).Error
+func (u *userRepository) UpdateTX(ctx context.Context, tx *gorm.DB, user *models.User) error {
+	return tx.WithContext(ctx).Save(user).Error
 }
 
 func (u *userRepository) Delete(ctx context.Context, id string) error {

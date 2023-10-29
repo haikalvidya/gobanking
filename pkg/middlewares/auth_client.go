@@ -10,6 +10,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type UserNatsResponse struct {
+	Data *UserResponse `json:"data"`
+}
+
 type UserResponse struct {
 	ID        string     `json:"id"`
 	Username  string     `json:"username"`
@@ -27,30 +31,30 @@ func (mw *middlewareManager) AuthMiddlewareClient(next echo.HandlerFunc) echo.Ha
 		token := ctx.Request().Header.Get("Authorization")
 
 		req := dtoUser.GetUserByIDRequest{}
-		req.ID = token
+		req.Token = token
 
 		reqBytes, err := serializer.Marshal(req)
 		if err != nil {
 			mw.log.Errorf("failed to marshal request: %v", err)
-			return http_errors.NewUnauthorizedError(ctx, err, mw.config.DebugErrorsResponse)
+			return http_errors.NewUnauthorizedError(ctx, http_errors.ErrUnauthorized, mw.config.DebugErrorsResponse)
 		}
 
 		// call user api to validate token to nats
 		resp, err := mw.natsConn.Request(natsPkg.UserGetUserByIdReqRep, reqBytes, natsPkg.TimeoutReq)
 		if err != nil {
 			mw.log.Errorf("failed to request to nats: %v", err)
-			return http_errors.NewUnauthorizedError(ctx, err, mw.config.DebugErrorsResponse)
+			return http_errors.NewUnauthorizedError(ctx, http_errors.ErrUnauthorized, mw.config.DebugErrorsResponse)
 		}
 
 		// get user data from response
-		var userResponse UserResponse
-		if err := serializer.Unmarshal(resp.Data, &userResponse); err != nil {
+		var userNatsResponse *UserNatsResponse
+		if err := serializer.Unmarshal(resp.Data, &userNatsResponse); err != nil {
 			mw.log.Errorf("failed to unmarshal response: %v", err)
-			return http_errors.NewUnauthorizedError(ctx, err, mw.config.DebugErrorsResponse)
+			return http_errors.NewUnauthorizedError(ctx, http_errors.ErrUnauthorized, mw.config.DebugErrorsResponse)
 		}
 
 		// set user data to context
-		ctx.Set("user", userResponse)
+		ctx.Set("user", userNatsResponse.Data)
 
 		return next(ctx)
 	}

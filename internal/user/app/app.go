@@ -94,7 +94,7 @@ func (a *app) Run() error {
 	appRepo := repository.NewRepository(a.mysqlConn)
 	appUsecase := usecase.NewUsecase(appRepo, a.redisConn, a.log, a.cfg)
 	http_handler.NewHandler(appUsecase, a.log, a.cfg, a.middlewareManager, a.validator, a.echo.Group(""), a.redisConn)
-	nats_handler.NewNatsHandler(appUsecase, a.log, a.natsClient)
+	nats_handler.NewNatsHandler(appUsecase, a.log, a.natsClient, a.redisConn)
 
 	go func() {
 		if err := a.runHttpServer(); err != nil {

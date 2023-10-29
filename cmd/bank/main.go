@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	appBank "gobanking/internal/bank/app"
 	"gobanking/internal/bank/config"
 	"gobanking/pkg/logger"
 	"log"
@@ -23,4 +24,5 @@ func main() {
 	appLogger.InitLogger()
 	appLogger.Named(fmt.Sprintf("(%s)", strings.ToUpper(cfg.ServiceName)))
 	appLogger.Infof("CFG: %+v", cfg)
+	appLogger.Fatal(appBank.NewAppBank(appLogger, cfg).Run())
 }

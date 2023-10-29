@@ -97,20 +97,29 @@ func (u *userUsecase) Update(ctx context.Context, id, token string, user *dto.Up
 		}
 	}
 
-	// update user in db
-	if err := u.Repo.User.Update(ctx, userModel); err != nil {
-		u.Logger.Errorf("error when update user: %v", err)
-		typeOfErr := http_errors.InternalServerError
-		return nil, fmt.Errorf("%v : error when update user: %v", typeOfErr, err)
-	}
+	// do it in transaction
+	err = u.Repo.Tx.DoInTransaction(func(tx *gorm.DB) error {
+		// update user in db
+		if err := u.Repo.User.UpdateTX(ctx, tx, userModel); err != nil {
+			u.Logger.Errorf("error when update user: %v", err)
+			typeOfErr := http_errors.InternalServerError
+			return fmt.Errorf("%v : error when update user: %v", typeOfErr, err)
+		}
 
-	userModel.Clean()
+		userModel.Clean()
 
-	// update user in redis
-	if err := u.updateUserRedis(ctx, token, userModel); err != nil {
-		u.Logger.Errorf("error when update user in redis: %v", err)
-		typeOfErr := http_errors.InternalServerError
-		return nil, fmt.Errorf("%v : error when update user in redis: %v", typeOfErr, err)
+		// update user in redis
+		if err := u.updateUserRedis(ctx, token, userModel); err != nil {
+			u.Logger.Errorf("error when update user in redis: %v", err)
+			typeOfErr := http_errors.InternalServerError
+			return fmt.Errorf("%v : error when update user in redis: %v", typeOfErr, err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
 	return userModel, nil

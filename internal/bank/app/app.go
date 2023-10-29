@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"gobanking/internal/bank/config"
+	http_handler "gobanking/internal/bank/handler/http"
+	"gobanking/internal/bank/repository"
+	"gobanking/internal/bank/usecase"
 	"gobanking/pkg/logger"
 	"gobanking/pkg/middlewares"
 	natsPkg "gobanking/pkg/nats"
@@ -35,7 +38,7 @@ type app struct {
 	natsClient        *nats.Conn
 }
 
-func NewAppUser(log logger.Logger, cfg *config.Config) *app {
+func NewAppBank(log logger.Logger, cfg *config.Config) *app {
 	return &app{
 		log:       log,
 		cfg:       cfg,
@@ -61,6 +64,11 @@ func (a *app) Run() error {
 		return err
 	}
 
+	// seeding currencies
+	if err := a.seedCurrencies(ctx); err != nil {
+		return err
+	}
+
 	// setup nats
 	natsClient, err := natsPkg.NewNatsConnect(a.cfg.Nats, a.log)
 	if err != nil {
@@ -80,6 +88,9 @@ func (a *app) Run() error {
 	)
 
 	// setup app
+	appRepo := repository.NewRepository(a.mysqlConn)
+	appUsecase := usecase.NewUsecase(appRepo, a.log)
+	http_handler.NewHandler(appUsecase, a.log, a.cfg, a.middlewareManager, a.validator, a.echo.Group(""))
 
 	go func() {
 		if err := a.runHttpServer(); err != nil {

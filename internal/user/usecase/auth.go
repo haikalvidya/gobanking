@@ -129,32 +129,35 @@ func (u *authUsecase) SignUp(ctx context.Context, user *dto.SignUpRequest) (*dto
 		return nil, fmt.Errorf("%v : error hashing password: %v", typeOfError, err)
 	}
 
-	if err := u.Repo.User.Create(ctx, userModel); err != nil {
-		u.Logger.Errorf("error creating user: %v", err)
-		typeOfError := http_errors.InternalServerError
-		return nil, fmt.Errorf("%v : error creating user: %v", typeOfError, err)
-	}
+	token := ""
+	refreshToken := ""
+	// do in transaction
+	err = u.Repo.Tx.DoInTransaction(func(tx *gorm.DB) error {
+		if err := u.Repo.User.CreateTX(ctx, tx, userModel); err != nil {
+			u.Logger.Errorf("error creating user: %v", err)
+			typeOfError := http_errors.InternalServerError
+			return fmt.Errorf("%v : error creating user: %v", typeOfError, err)
+		}
 
-	// get user from db
-	userModel, err = u.Repo.User.GetByEmail(ctx, user.Email)
+		token, refreshToken, err = u.generateToken(ctx, userModel)
+		if err != nil {
+			u.Logger.Errorf("error generating token: %v", err)
+			typeOfError := http_errors.InternalServerError
+			return fmt.Errorf("%v : error generating token: %v", typeOfError, err)
+		}
+
+		// save token to redis
+		if err := u.saveSessionTokenToRedis(ctx, token, refreshToken, userModel); err != nil {
+			u.Logger.Errorf("error saving token to redis: %v", err)
+			typeOfError := http_errors.InternalServerError
+			return fmt.Errorf("%v : error saving token to redis: %v", typeOfError, err)
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		u.Logger.Errorf("error getting user by email: %v", err)
-		typeOfError := http_errors.InternalServerError
-		return nil, fmt.Errorf("%v : error getting user by email: %v", typeOfError, err)
-	}
-
-	token, refreshToken, err := u.generateToken(ctx, userModel)
-	if err != nil {
-		u.Logger.Errorf("error generating token: %v", err)
-		typeOfError := http_errors.InternalServerError
-		return nil, fmt.Errorf("%v : error generating token: %v", typeOfError, err)
-	}
-
-	// save token to redis
-	if err := u.saveSessionTokenToRedis(ctx, token, refreshToken, userModel); err != nil {
-		u.Logger.Errorf("error saving token to redis: %v", err)
-		typeOfError := http_errors.InternalServerError
-		return nil, fmt.Errorf("%v : error saving token to redis: %v", typeOfError, err)
+		return nil, err
 	}
 
 	return &dto.SignUpResponse{

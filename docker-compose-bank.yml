@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  mysql_bank:
+    image: mysql:latest
+    container_name: mysql_bank
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${BANK_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${BANK_MYSQL_DATABASE}
+    ports:
+      - ${BANK_MYSQL_PORT}:3306
+    volumes:
+      - ./mysqldata-bank:/var/lib/mysql
+    networks:
+      - bank-backend
+
+  bank_service:
+    build:
+      context: .
+      dockerfile: ./docker/bank.Dockerfile
+    container_name: bank_service
+    depends_on:
+      - mysql_bank
+    command: ./app --config=config/config.yml
+    restart: always
+    volumes:
+      - ./cmd/bank/config/config.yml:/config/config.yml # for local
+      # - ./config-bank.yml:/app/config.yml # for production if no folder project, create config.yml in the same folder with docker compsoe and attach it
+    ports:
+      - ${BANK_API_PORT}:8000
+    networks:
+      - bank-backend
+      - nats-network
+
+
+networks:
+  bank-backend:
+  nats-network:
+    external: true
+    name: ${NATS_NETWORK_NAME}

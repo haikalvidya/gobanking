@@ -39,17 +39,18 @@ func NewHandler(usecase *usecase.Usecase,
 	}
 
 	h := &Handler{
-		Account: (*AccountHandler)(handler),
+		Account:  (*AccountHandler)(handler),
+		Currency: (*CurrencyHandler)(handler),
 	}
 
 	account := e.Group("/account")
 	{
 		account.POST("", h.Account.Create, handler.mw.AuthMiddlewareClient)
-		account.GET("/:account_number", h.Account.GetByAccountNumber, handler.mw.AuthMiddlewareClient)
-		account.GET("/user/:user_id", h.Account.GetByUserID, handler.mw.AuthMiddlewareClient)
-		account.GET("/me", h.Account.GetByUserID, handler.mw.AuthMiddlewareClient)
+		account.GET("/me", h.Account.GetByME, handler.mw.AuthMiddlewareClient)
+		account.GET("/detail/:account_number", h.Account.GetByAccountNumberByOwner, handler.mw.AuthMiddlewareClient)
 		account.PUT("/:account_number", h.Account.Update, handler.mw.AuthMiddlewareClient)
 		account.DELETE("/:account_number", h.Account.Delete, handler.mw.AuthMiddlewareClient)
+		account.GET("/:account_number", h.Account.GetByAccountNumberExternal)
 	}
 
 	currency := e.Group("/currency")
