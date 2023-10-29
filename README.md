@@ -30,10 +30,10 @@ make run-docker-all
 | PUT | /user/:id | Update user by id |
 | DELETE | /:id | Delete user by id |
 | POST | /account | Create new account |
-| GET | /account/:account_number | Get account by account number |
-| GET | /account/user/:user_id | Get all account by user id |
 | GET | /account/me | Get all account by current user |
+| GET | /account/detail/:account_number | Get account by account number by the owner |
 | PUT | /account/:account_number | Update account by account number |
 | DELETE | /account/:account_number | Delete account by account number |
+| GET | /account/:account_number | Get account by account number by external |
 | GET | /currency | Get all currency |
 | GET | /currency/:id | Get currency by id |
