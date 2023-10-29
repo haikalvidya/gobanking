@@ -11,8 +11,9 @@ import (
 )
 
 type Handler struct {
-	Account  *AccountHandler
-	Currency *CurrencyHandler
+	Account     *AccountHandler
+	Currency    *CurrencyHandler
+	Transaction *TransactionHandler
 }
 
 type handler struct {
@@ -39,8 +40,9 @@ func NewHandler(usecase *usecase.Usecase,
 	}
 
 	h := &Handler{
-		Account:  (*AccountHandler)(handler),
-		Currency: (*CurrencyHandler)(handler),
+		Account:     (*AccountHandler)(handler),
+		Currency:    (*CurrencyHandler)(handler),
+		Transaction: (*TransactionHandler)(handler),
 	}
 
 	account := e.Group("/account")
@@ -57,6 +59,13 @@ func NewHandler(usecase *usecase.Usecase,
 	{
 		currency.GET("", h.Currency.GetAll)
 		currency.GET("/:id", h.Currency.GetByID)
+	}
+
+	transaction := e.Group("/transaction")
+	{
+		transaction.POST("/transfer", h.Transaction.Transfer, handler.mw.AuthMiddlewareClient)
+		transaction.POST("/withdrawal", h.Transaction.Withdrawal, handler.mw.AuthMiddlewareClient)
+		transaction.POST("/deposit", h.Transaction.Deposit, handler.mw.AuthMiddlewareClient)
 	}
 
 	return h

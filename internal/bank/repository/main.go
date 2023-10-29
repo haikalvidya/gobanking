@@ -3,9 +3,11 @@ package repository
 import "gorm.io/gorm"
 
 type Repository struct {
-	Tx       Tx
-	Account  AccountRepository
-	Currency CurrencyRepository
+	Tx            Tx
+	Account       AccountRepository
+	Currency      CurrencyRepository
+	Transaction   TransactionRepository
+	BalanceLedger BalanceLedgerRepository
 }
 
 type Tx interface {
@@ -49,8 +51,10 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 
 	return &Repository{
-		Tx:       &tx{DB: db},
-		Account:  (*accountRepository)(repo),
-		Currency: (*currencyRepository)(repo),
+		Tx:            &tx{DB: db},
+		Account:       (*accountRepository)(repo),
+		Currency:      (*currencyRepository)(repo),
+		Transaction:   (*transactionRepository)(repo),
+		BalanceLedger: (*balanceLedgerRepository)(repo),
 	}
 }

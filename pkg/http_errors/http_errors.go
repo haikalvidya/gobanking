@@ -202,6 +202,8 @@ func ParseErrors(err error, debug bool) RestErr {
 		return NewRestError(http.StatusRequestTimeout, ErrRequestTimeout, err.Error(), debug)
 	case errors.Is(err, Unauthorized) || strings.Contains(err.Error(), ErrUnauthorized):
 		return NewRestError(http.StatusUnauthorized, ErrUnauthorized, err.Error(), debug)
+	case errors.Is(err, Forbidden) || strings.Contains(err.Error(), ErrForbidden):
+		return NewRestError(http.StatusForbidden, ErrForbidden, err.Error(), debug)
 	case errors.Is(err, WrongCredentials) || strings.Contains(err.Error(), ErrWrongCredentials):
 		return NewRestError(http.StatusUnauthorized, ErrUnauthorized, err.Error(), debug)
 	case strings.Contains(strings.ToLower(err.Error()), "field validation"):

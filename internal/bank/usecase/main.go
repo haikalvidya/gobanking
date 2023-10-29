@@ -6,8 +6,9 @@ import (
 )
 
 type Usecase struct {
-	Account  AccountUsecase
-	Currency CurrencyUsecase
+	Account     AccountUsecase
+	Currency    CurrencyUsecase
+	Transaction TransactionUsecase
 }
 
 type usecase struct {
@@ -21,7 +22,8 @@ func NewUsecase(repo *repository.Repository, logger logger.Logger) *Usecase {
 		Logger: logger,
 	}
 	return &Usecase{
-		Account:  (*accountUsecase)(svc),
-		Currency: (*currencyUsecase)(svc),
+		Account:     (*accountUsecase)(svc),
+		Currency:    (*currencyUsecase)(svc),
+		Transaction: (*transactionUsecase)(svc),
 	}
 }

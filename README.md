@@ -37,3 +37,10 @@ make run-docker-all
 | GET | /account/:account_number | Get account by account number by external |
 | GET | /currency | Get all currency |
 | GET | /currency/:id | Get currency by id |
+| POST | /transfer | Transfer money between account |
+| POST | /deposit | Deposit money to account |
+| POST | /withdraw | Withdraw money from account |
+
+## Money representation
+
+Money is represented as integer as smallest unit of currency. For example, 1 USD is represented as 100 cents or 1 GBP is representation as 100 pence. This is to avoid floating point precision problem. The program is using this library https://github.com/Rhymond/go-money to handle money representation.
