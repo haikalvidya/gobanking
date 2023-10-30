@@ -19,6 +19,8 @@ make run-docker-all
 
 ## Endpoint list
 
+Detail document of endpoint list can be found in the docs folder, there is a postman collection.
+
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | POST | /auth/signup | Create new user |
@@ -44,3 +46,17 @@ make run-docker-all
 ## Money representation
 
 Money is represented as integer as smallest unit of currency. For example, 1 USD is represented as 100 cents or 1 GBP is representation as 100 pence. This is to avoid floating point precision problem. The program is using this library https://github.com/Rhymond/go-money to handle money representation.
+
+## How To Run
+
+### Copy env file
+
+```bash
+cp .env.example .env
+```
+
+### Run docker compose
+
+```bash
+make run-docker-all
+```
