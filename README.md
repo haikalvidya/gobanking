@@ -11,12 +11,6 @@ The is built with the following technologies:
 - Database: [MySQL](https://www.mysql.com/) , [Redis](https://redis.io/)
 - Deployment: [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/)
 
-## How to run
-
-```bash
-make run-docker-all
-```
-
 ## Endpoint list
 
 Detail document of endpoint list can be found in the docs folder, there is a postman collection.
